@@ -501,132 +501,194 @@ class Ui_MainWindow(object):
 
     # --- TIMER STARTING THREAD ---
     def start_thread(self):
-        t = threading.Thread(target=self.start)
-        t.start()
+        try:
+            t = threading.Thread(target=self.start)
+            t.start()
+        except:
+            self.errorText.setText("An Unknown Error Occurred. Please try again!")
+            self.msgshow.start()
 
     # --- TIMER RESUMING THREAD ---
     def resume_thread(self):
-        t1 = threading.Thread(target=self.resume)
-        t1.start()
+        try:
+            t1 = threading.Thread(target=self.resume)
+            t1.start()
+        except:
+            self.errorText.setText("An Unknown Error Occurred. Please try again!")
+            self.msgshow.start()
 
     # --- TIMER FUNCTIONS ---
     def start(self):
+        try:
+            # --- TIME CALCULATION ---
+            self.stopFrame.setEnabled(True)     # Enabling the stop button
+            self.resetFrame.setEnabled(True)    # Enabling the reset button
+            self.stop_loop = False
 
-        # --- TIME CALCULATION ---
-        self.stopFrame.setEnabled(True)     # Enabling the stop button
-        self.resetFrame.setEnabled(True)    # Enabling the reset button
-        self.stop_loop = False
+            self.total_secs = self._hrs * 3600 + self._mins * 60 + self._secs   # Calculating total seconds
+            self.temp = self.total_secs     # Variable to hold the original value of the total seconds
 
-        self.total_secs = self._hrs * 3600 + self._mins * 60 + self._secs   # Calculating total seconds
-        self.temp = self.total_secs     # Variable to hold the original value of the total seconds
-
-        # --- CIRCULAR PROGRESS BAR SETUP ---
-        self.circularProgress.setStyleSheet("QFrame {\n"
-                                            "    border-radius: 150px;\n"
-                                            "background-color: qconicalgradient(cx:0.5, cy:0.5, angle:90, stop:1.000 "
-                                            "rgba(0, 170, 255, 0), stop:1.000 rgba(208, 158, 230, 255));\n "
-                                            "}")    # Setting the bar to full value
-
-        self.step = 1.001 / self.temp   # To calculate the distance covered by the bar in 1 second
-        self.stop_2 = 0.001     # Original value of stop_2 to make it start from full bar
-
-        while self.total_secs > 0 and not self.stop_loop:
-
-            # --- CIRCULAR PROGRESS BAR ANIMATION ---
-            self.stop_2 = round(self.stop_2 + self.step, 3)
-            self.stop_1 = round(self.stop_2 - 0.001, 3)
+            # --- CIRCULAR PROGRESS BAR SETUP ---
             self.circularProgress.setStyleSheet("QFrame {\n"
                                                 "    border-radius: 150px;\n"
-                                                f"    background-color: qconicalgradient(cx:0.5, cy:0.5, angle:90, stop:{self.stop_1} rgba(0, 170, 255, 0), stop:{self.stop_2} rgba(208, 158, 230, 255));\n "
-                                                "}")    # New stylesheet with updated stop values
+                                                "background-color: qconicalgradient(cx:0.5, cy:0.5, angle:90, "
+                                                "stop:1.000 "
+                                                "rgba(0, 170, 255, 0), stop:1.000 rgba(208, 158, 230, 255));\n "
+                                                "}")    # Setting the bar to full value
 
-            # --- TIME UPDATION ---
-            self.total_secs -= 1
-            mins, secs = divmod(self.total_secs, 60)    # New value of seconds
-            hrs, mins = divmod(mins, 60)    # New value of hours and minutes
+            self.step = 1.001 / self.temp   # To calculate the distance covered by the bar in 1 second
+            self.stop_2 = 0.001     # Original value of stop_2 to make it start from full bar
 
-            # --- DISABLING INPUT FIELDS ---
-            self.hrsInput.setDisabled(True)
-            self.minsInput.setDisabled(True)
-            self.secsInput.setDisabled(True)
+            while self.total_secs > 0 and not self.stop_loop:
 
-            # --- ASSIGNING AND DISPLAYING THE NEW VALUES OF HOURS, MINUTES, SECONDS ---
-            self.hrsInput.setText(str(hrs).zfill(2))
-            self.minsInput.setText(str(mins).zfill(2))
-            self.secsInput.setText(str(secs).zfill(2))
+                # --- CIRCULAR PROGRESS BAR ANIMATION ---
+                self.stop_2 = round(self.stop_2 + self.step, 3)
+                self.stop_1 = round(self.stop_2 - 0.001, 3)
+                self.circularProgress.setStyleSheet("QFrame {\n"
+                                                    "    border-radius: 150px;\n"
+                                                    f"    background-color: qconicalgradient(cx:0.5, cy:0.5, "
+                                                    f"angle:90, stop:{self.stop_1} rgba(0, 170, 255, 0), "
+                                                    f"stop:{self.stop_2} rgba(208, 158, 230, 255));\n "
+                                                    "}")    # New stylesheet with updated stop values
 
-            time.sleep(1)   # 1 second delay
+                # --- TIME UPDATION ---
+                self.total_secs -= 1
+                mins, secs = divmod(self.total_secs, 60)    # New value of seconds
+                hrs, mins = divmod(mins, 60)    # New value of hours and minutes
 
-        if not self.stop_loop:
+                # --- DISABLING INPUT FIELDS ---
+                self.hrsInput.setDisabled(True)
+                self.minsInput.setDisabled(True)
+                self.secsInput.setDisabled(True)
 
-            # --- ENABLING THE INPUT FIELDS ---
-            self.hrsInput.setEnabled(True)
-            self.minsInput.setEnabled(True)
-            self.secsInput.setEnabled(True)
+                # --- ASSIGNING AND DISPLAYING THE NEW VALUES OF HOURS, MINUTES, SECONDS ---
+                self.hrsInput.setText(str(hrs).zfill(2))
+                self.minsInput.setText(str(mins).zfill(2))
+                self.secsInput.setText(str(secs).zfill(2))
 
-            # --- UPDATING THE START ICON AND LABEL ---
-            self.startLabel.setText("Start")
-            self.startIcon.setPixmap(QtGui.QPixmap("assets/img/Play.png"))
-            self.startIcon.setGeometry(QtCore.QRect(60, 50, 40, 39))
+                time.sleep(1)   # 1 second delay
 
-            playsound('assets/alerts/alert.wav')    # Alert sound
+            if not self.stop_loop:
 
-            if platform.system() == 'Windows':  # Toast Notification once the timer is done
-                toast = ToastNotifier()
-                toast.show_toast("Countdown Timer", "Time is Up!", duration=10)
+                # --- ENABLING THE INPUT FIELDS ---
+                self.hrsInput.setEnabled(True)
+                self.minsInput.setEnabled(True)
+                self.secsInput.setEnabled(True)
+
+                # --- UPDATING THE START ICON AND LABEL ---
+                self.startLabel.setText("Start")
+                self.startIcon.setPixmap(QtGui.QPixmap("assets/img/Play.png"))
+                self.startIcon.setGeometry(QtCore.QRect(60, 50, 40, 39))
+
+                playsound('assets/alerts/alert.wav')    # Alert sound
+
+                if platform.system() == 'Windows':  # Toast Notification once the timer is done
+                    toast = ToastNotifier()
+                    toast.show_toast("Countdown Timer", "Time is Up!", duration=10)
+
+        except:
+            self.errorText.setText("An Unknown Error Occurred. Please try again!")
+            self.msgshow.start()
 
     def pause(self):
-        self.stopFrame.setEnabled(True)     # Enabling the Stop button
+        try:
+            self.stopFrame.setEnabled(True)     # Enabling the Stop button
 
-        self.stop_loop = True
+            self.stop_loop = True
 
-        self.total_secs = self._hrs * 3600 + self._mins * 60 + self._secs   # Calculating the present value of total
-        # seconds.
-        mins2, secs2 = divmod(self.total_secs, 60)
-        hrs2, mins2 = divmod(mins2, 60)
+            self.total_secs = self._hrs * 3600 + self._mins * 60 + self._secs   # Calculating the present value of total
+            # seconds.
+            mins2, secs2 = divmod(self.total_secs, 60)
+            hrs2, mins2 = divmod(mins2, 60)
 
-        # --- ASSIGNING AND DISPLAYING THE TIME VALUES WHEN THE TIMER IS PAUSED ---
-        self.hrsInput.setText(str(hrs2).zfill(2))
-        self.minsInput.setText(str(mins2).zfill(2))
-        self.secsInput.setText(str(secs2).zfill(2))
+            # --- ASSIGNING AND DISPLAYING THE TIME VALUES WHEN THE TIMER IS PAUSED ---
+            self.hrsInput.setText(str(hrs2).zfill(2))
+            self.minsInput.setText(str(mins2).zfill(2))
+            self.secsInput.setText(str(secs2).zfill(2))
+
+        except:
+            self.errorText.setText("An Unknown Error Occurred. Please try again!")
+            self.msgshow.start()
 
     def resume(self):
-        # --- ENABLING THE STOP AND RESET BUTTONS ---
-        self.stopFrame.setEnabled(True)
-        self.resetFrame.setEnabled(True)
+        try:
+            # --- ENABLING THE STOP AND RESET BUTTONS ---
+            self.stopFrame.setEnabled(True)
+            self.resetFrame.setEnabled(True)
 
-        self.stop_loop = False
+            self.stop_loop = False
 
-        self.total_secs = self._hrs * 3600 + self._mins * 60 + self._secs
+            self.total_secs = self._hrs * 3600 + self._mins * 60 + self._secs
 
-        while self.total_secs > 0 and not self.stop_loop:
+            while self.total_secs > 0 and not self.stop_loop:
 
-            # --- CIRCULAR PROGRESS BAR ANIMATION ---
-            self.stop_2 = round(self.stop_2 + self.step, 3)
-            self.stop_1 = round(self.stop_2 - 0.001, 3)
+                # --- CIRCULAR PROGRESS BAR ANIMATION ---
+                self.stop_2 = round(self.stop_2 + self.step, 3)
+                self.stop_1 = round(self.stop_2 - 0.001, 3)
+                self.circularProgress.setStyleSheet("QFrame {\n"
+                                                    "    border-radius: 150px;\n"
+                                                    f"    background-color: qconicalgradient(cx:0.5, cy:0.5, "
+                                                    f"angle:90, stop:{self.stop_1} rgba(0, 170, 255, 0), "
+                                                    f"stop:{self.stop_2} rgba(208, 158, 230, 255));\n "
+                                                    "}")
+
+                # --- TIME UPDATION ---
+                self.total_secs -= 1
+                mins, secs = divmod(self.total_secs, 60)
+                hrs, mins = divmod(mins, 60)
+
+                # --- DISABLING THE INPUT FIELDS ---
+                self.hrsInput.setDisabled(True)
+                self.minsInput.setDisabled(True)
+                self.secsInput.setDisabled(True)
+
+                # --- ASSIGNING AND DISPLAYING THE NEW TIME VALUES ---
+                self.hrsInput.setText(str(hrs).zfill(2))
+                self.minsInput.setText(str(mins).zfill(2))
+                self.secsInput.setText(str(secs).zfill(2))
+
+                time.sleep(1)   # 1 second delay
+
+            if not self.stop_loop:
+
+                # --- ENABLING THE INPUT FIELDS ---
+                self.hrsInput.setEnabled(True)
+                self.minsInput.setEnabled(True)
+                self.secsInput.setEnabled(True)
+
+                # --- UPDATING THE START ICON AND LABEL ---
+                self.startLabel.setText("Start")
+                self.startIcon.setPixmap(QtGui.QPixmap("assets/img/Play.png"))
+                self.startIcon.setGeometry(QtCore.QRect(60, 50, 40, 39))
+
+                playsound('assets/alerts/alert.wav')   # Alert Sound
+
+                if platform.system() == 'Windows':  # Toast Notification once the timer is done
+                    toast = ToastNotifier()
+                    toast.show_toast("Countdown Timer", "Time is Up!", duration=10)
+
+        except:
+            self.errorText.setText("An Unknown Error Occurred. Please try again!")
+            self.msgshow.start()
+
+    def stop(self):
+        try:
             self.circularProgress.setStyleSheet("QFrame {\n"
                                                 "    border-radius: 150px;\n"
-                                                f"    background-color: qconicalgradient(cx:0.5, cy:0.5, angle:90, stop:{self.stop_1} rgba(0, 170, 255, 0), stop:{self.stop_2} rgba(208, 158, 230, 255));\n "
-                                                "}")
+                                                "background-color: qconicalgradient(cx:0.5, cy:0.5, angle:90, "
+                                                "stop:1.000 "
+                                                "rgba(0, 170, 255, 0), stop:1.001 rgba(208, 158, 230, 255));\n "
+                                                "}")    # Resetting the progress bar to the initial value
 
-            # --- TIME UPDATION ---
-            self.total_secs -= 1
-            mins, secs = divmod(self.total_secs, 60)
-            hrs, mins = divmod(mins, 60)
+            # --- TIME UPDATION ----
+            self.stop_loop = True
+            mins1, secs1 = divmod(self.temp, 60)
+            hrs1, mins1 = divmod(mins1, 60)
 
-            # --- DISABLING THE INPUT FIELDS ---
-            self.hrsInput.setDisabled(True)
-            self.minsInput.setDisabled(True)
-            self.secsInput.setDisabled(True)
-
-            # --- ASSIGNING AND DISPLAYING THE NEW TIME VALUES ---
-            self.hrsInput.setText(str(hrs).zfill(2))
-            self.minsInput.setText(str(mins).zfill(2))
-            self.secsInput.setText(str(secs).zfill(2))
-
-            time.sleep(1)   # 1 second delay
-
-        if not self.stop_loop:
+            # --- ASSIGNING AND DISPLAYING THE INITIAL TIME VALUES ---
+            self.hrsInput.setText(str(hrs1).zfill(2))
+            self.minsInput.setText(str(mins1).zfill(2))
+            self.secsInput.setText(str(secs1).zfill(2))
 
             # --- ENABLING THE INPUT FIELDS ---
             self.hrsInput.setEnabled(True)
@@ -638,128 +700,124 @@ class Ui_MainWindow(object):
             self.startIcon.setPixmap(QtGui.QPixmap("assets/img/Play.png"))
             self.startIcon.setGeometry(QtCore.QRect(60, 50, 40, 39))
 
-            playsound('assets/alerts/alert.wav')   # Alert Sound
-
-            if platform.system() == 'Windows':  # Toast Notification once the timer is done
-                toast = ToastNotifier()
-                toast.show_toast("Countdown Timer", "Time is Up!", duration=10)
-
-    def stop(self):
-        self.circularProgress.setStyleSheet("QFrame {\n"
-                                            "    border-radius: 150px;\n"
-                                            "background-color: qconicalgradient(cx:0.5, cy:0.5, angle:90, stop:1.000 "
-                                            "rgba(0, 170, 255, 0), stop:1.001 rgba(208, 158, 230, 255));\n "
-                                            "}")    # Resetting the progress bar to the initial value
-
-        # --- TIME UPDATION ----
-        self.stop_loop = True
-        mins1, secs1 = divmod(self.temp, 60)
-        hrs1, mins1 = divmod(mins1, 60)
-
-        # --- ASSIGNING AND DISPLAYING THE INITIAL TIME VALUES ---
-        self.hrsInput.setText(str(hrs1).zfill(2))
-        self.minsInput.setText(str(mins1).zfill(2))
-        self.secsInput.setText(str(secs1).zfill(2))
-
-        # --- ENABLING THE INPUT FIELDS ---
-        self.hrsInput.setEnabled(True)
-        self.minsInput.setEnabled(True)
-        self.secsInput.setEnabled(True)
-
-        # --- UPDATING THE START ICON AND LABEL ---
-        self.startLabel.setText("Start")
-        self.startIcon.setPixmap(QtGui.QPixmap("assets/img/Play.png"))
-        self.startIcon.setGeometry(QtCore.QRect(60, 50, 40, 39))
+        except:
+            self.errorText.setText("An Unknown Error Occurred. Please try again!")
+            self.msgshow.start()
 
     def reset(self):
-        self.circularProgress.setStyleSheet("QFrame {\n"
-                                            "    border-radius: 150px;\n"
-                                            "background-color: qconicalgradient(cx:0.5, cy:0.5, angle:90, stop:1.000 "
-                                            "rgba(0, 170, 255, 0), stop:1.001 rgba(208, 158, 230, 255));\n "
-                                            "}")    # Resetting the progress bar to the initial value
+        try:
+            self.circularProgress.setStyleSheet("QFrame {\n"
+                                                "    border-radius: 150px;\n"
+                                                "background-color: qconicalgradient(cx:0.5, cy:0.5, angle:90, "
+                                                "stop:1.000 "
+                                                "rgba(0, 170, 255, 0), stop:1.001 rgba(208, 158, 230, 255));\n "
+                                                "}")    # Resetting the progress bar to the initial value
 
-        self.total_secs = 0
-        self.stop_loop = True
+            self.total_secs = 0
+            self.stop_loop = True
 
-        # --- RESETTING THE INPUT FIELD VALUES ---
-        self.hrsInput.setText("00")
-        self.minsInput.setText("00")
-        self.secsInput.setText("00")
+            # --- RESETTING THE INPUT FIELD VALUES ---
+            self.hrsInput.setText("00")
+            self.minsInput.setText("00")
+            self.secsInput.setText("00")
 
-        # --- ENABLING THE INPUT FIELDS ---
-        self.hrsInput.setEnabled(True)
-        self.minsInput.setEnabled(True)
-        self.secsInput.setEnabled(True)
+            # --- ENABLING THE INPUT FIELDS ---
+            self.hrsInput.setEnabled(True)
+            self.minsInput.setEnabled(True)
+            self.secsInput.setEnabled(True)
 
-        # --- UPDATING THE START ICON AND LABEL ---
-        self.startLabel.setText("Start")
-        self.startIcon.setPixmap(QtGui.QPixmap("assets/img/Play.png"))
-        self.startIcon.setGeometry(QtCore.QRect(60, 50, 40, 39))
+            # --- UPDATING THE START ICON AND LABEL ---
+            self.startLabel.setText("Start")
+            self.startIcon.setPixmap(QtGui.QPixmap("assets/img/Play.png"))
+            self.startIcon.setGeometry(QtCore.QRect(60, 50, 40, 39))
 
-        self.stopFrame.setDisabled(True)    # Disabling the stop button
+            self.stopFrame.setDisabled(True)    # Disabling the stop button
+
+        except:
+            self.errorText.setText("An Unknown Error Occurred. Please try again!")
+            self.msgshow.start()
 
     def start_clicked(self):
-        if self.startLabel.text() == "Start":   # If the Start label is 'Start'
-            # --- USER INPUT ---
-            self._hrs = self.hrsInput.text() or "00"
-            self._mins = self.minsInput.text() or "00"
-            self._secs = self.secsInput.text() or "00"
+        try:
+            if self.startLabel.text() == "Start":   # If the Start label is 'Start'
+                # --- USER INPUT ---
+                self._hrs = self.hrsInput.text() or "00"
+                self._mins = self.minsInput.text() or "00"
+                self._secs = self.secsInput.text() or "00"
 
-            if self._hrs.isdigit() and self._mins.isdigit() and self._secs.isdigit():
+                if self._hrs.isdigit() and self._mins.isdigit() and self._secs.isdigit():
+                    # --- CHANGING THE START ICON AND LABEL TO PAUSE ---
+                    self.startLabel.setText("Pause")
+                    self.startIcon.setPixmap(QtGui.QPixmap("assets/img/Pause.png"))
+                    self.startIcon.setGeometry(QtCore.QRect(56, 50, 40, 39))
+
+                    self._hrs = int(self._hrs)
+                    self._mins = int(self._mins)
+                    self._secs = int(self._secs)
+
+                    self.start_thread()     # function call
+
+                else:
+                    # --- DISABLING STOP AND RESET BUTTONS ---
+                    self.stopFrame.setDisabled(True)
+                    self.resetFrame.setDisabled(True)
+
+                    self.errorText.setText("Enter a valid integer value!")
+                    self.msgshow.start()    # function call
+
+            elif self.startLabel.text() == 'Pause':     # If the Start label is 'Pause'
+                # --- CHANGING THE START ICON AND LABEL TO RESUME ---
+                self.startLabel.setText("Resume")
+                self.startIcon.setPixmap(QtGui.QPixmap("assets/img/Play.png"))
+                self.startIcon.setGeometry(QtCore.QRect(60, 50, 40, 39))
+
+                # --- USER INPUT ---
+                self._hrs = int(self.hrsInput.text() or "00")
+                self._mins = int(self.minsInput.text() or "00")
+                self._secs = int(self.secsInput.text() or "00")
+
+                self.pause()    # function call
+
+            elif self.startLabel.text() == 'Resume':    # If the Start label is 'Resume'
                 # --- CHANGING THE START ICON AND LABEL TO PAUSE ---
                 self.startLabel.setText("Pause")
                 self.startIcon.setPixmap(QtGui.QPixmap("assets/img/Pause.png"))
                 self.startIcon.setGeometry(QtCore.QRect(56, 50, 40, 39))
 
-                self._hrs = int(self._hrs)
-                self._mins = int(self._mins)
-                self._secs = int(self._secs)
+                # --- USER INPUT ---
+                self._hrs = int(self.hrsInput.text() or "00")
+                self._mins = int(self.minsInput.text() or "00")
+                self._secs = int(self.secsInput.text() or "00")
 
-                self.start_thread()     # function call
+                self.resume_thread()    # function call
 
-            else:
-                # --- DISABLING STOP AND RESET BUTTONS ---
-                self.stopFrame.setDisabled(True)
-                self.resetFrame.setDisabled(True)
-
-                self.errorText.setText("Enter a valid integer value!")
-                self.msgshow.start()    # function call
-
-        elif self.startLabel.text() == 'Pause':     # If the Start label is 'Pause'
-            # --- CHANGING THE START ICON AND LABEL TO RESUME ---
-            self.startLabel.setText("Resume")
-            self.startIcon.setPixmap(QtGui.QPixmap("assets/img/Play.png"))
-            self.startIcon.setGeometry(QtCore.QRect(60, 50, 40, 39))
-
-            # --- USER INPUT ---
-            self._hrs = int(self.hrsInput.text() or "00")
-            self._mins = int(self.minsInput.text() or "00")
-            self._secs = int(self.secsInput.text() or "00")
-
-            self.pause()    # function call
-
-        elif self.startLabel.text() == 'Resume':    # If the Start label is 'Resume'
-            # --- CHANGING THE START ICON AND LABEL TO PAUSE ---
-            self.startLabel.setText("Pause")
-            self.startIcon.setPixmap(QtGui.QPixmap("assets/img/Pause.png"))
-            self.startIcon.setGeometry(QtCore.QRect(56, 50, 40, 39))
-
-            # --- USER INPUT ---
-            self._hrs = int(self.hrsInput.text() or "00")
-            self._mins = int(self.minsInput.text() or "00")
-            self._secs = int(self.secsInput.text() or "00")
-
-            self.resume_thread()    # function call
+        except:
+            self.errorText.setText("An Unknown Error Occurred. Please try again!")
+            self.msgshow.start()
 
     def stop_clicked(self):
-        self.stop()
+        try:
+            self.stop()
+
+        except:
+            self.errorText.setText("An Unknown Error Occurred. Please try again!")
+            self.msgshow.start()
 
     def reset_clicked(self):
-        self.reset()
+        try:
+            self.reset()
+
+        except:
+            self.errorText.setText("An Unknown Error Occurred. Please try again!")
+            self.msgshow.start()
 
     def close_msg_clicked(self):
-        self.msghide.start()
+        try:
+            self.msghide.start()
 
+        except:
+            self.errorText.setText("An Unknown Error Occurred. Please try again!")
+            self.msgshow.start()
 
 if __name__ == "__main__":
     import sys
