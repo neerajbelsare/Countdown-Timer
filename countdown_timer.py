@@ -472,6 +472,9 @@ class Ui_MainWindow(object):
         self.minsInput.setText(str(mins2).zfill(2))
         self.secsInput.setText(str(secs2).zfill(2))
 
+    def resume(self):
+        pass
+
     def stop(self):
         self.stop_loop = True
         mins1, secs1 = divmod(self.temp, 60)
@@ -549,7 +552,7 @@ class Ui_MainWindow(object):
             self._mins = int(self.minsInput.text() or "00")
             self._secs = int(self.secsInput.text() or "00")
 
-            self.start()
+            self.start_thread()
 
     def stop_clicked(self):
         self.stop()
