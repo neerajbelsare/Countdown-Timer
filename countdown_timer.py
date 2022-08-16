@@ -10,6 +10,42 @@ from playsound import playsound
 
 class Ui_MainWindow(object):
     def __init__(self):
+        self.menubar = None
+        self.statusbar = None
+        self.closeMsgButton = None
+        self.closeMsgIcon = None
+        self.errorText = None
+        self.errorIcon = None
+        self.messageContainer = None
+        self.msghide = None
+        self.msgshow = None
+        self.hrsInput = None
+        self.secsInput = None
+        self.minsInput = None
+        self.colon2 = None
+        self.colon1 = None
+        self.container = None
+        self.circularBg = None
+        self.circularProgress = None
+        self.circularProgressBarBase = None
+        self.stopLabel = None
+        self.stopButton = None
+        self.stopIcon = None
+        self.stopFrame = None
+        self.startLabel = None
+        self.startButton = None
+        self.startIcon = None
+        self.startFrame = None
+        self.resetLabel = None
+        self.resetButton = None
+        self.resetIcon = None
+        self.resetFrame = None
+        self.frame = None
+        self.title = None
+        self.verticalLayout_2 = None
+        self.verticalLayoutWidget = None
+        self.windowBackground = None
+        self.centralwidget = None
         self.stop_1 = None
         self.stop_2 = None
         self.step = None
@@ -29,7 +65,8 @@ class Ui_MainWindow(object):
         self.windowBackground = QtWidgets.QFrame(self.centralwidget)
         self.windowBackground.setGeometry(QtCore.QRect(9, 9, 776, 581))
         self.windowBackground.setStyleSheet("QFrame {\n"
-                                            "    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(51, 3, 57, 255), stop:1 rgba(51, 49, 151, 255));    \n"
+                                            "background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, "
+                                            "stop:0 rgba(51, 3, 57, 255), stop:1 rgba(51, 49, 151, 255));    \n "
                                             "}")
         self.windowBackground.setFrameShape(QtWidgets.QFrame.Shape.NoFrame)
         self.windowBackground.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
@@ -227,7 +264,8 @@ class Ui_MainWindow(object):
         self.circularProgress.setGeometry(QtCore.QRect(10, 10, 300, 300))
         self.circularProgress.setStyleSheet("QFrame {\n"
                                             "    border-radius: 150px;\n"
-                                            "    background-color: qconicalgradient(cx:0.5, cy:0.5, angle:90, stop:1.000 rgba(0, 170, 255, 0), stop:1.001 rgba(208, 158, 230, 255));\n"
+                                            "background-color: qconicalgradient(cx:0.5, cy:0.5, angle:90, stop:1.000 "
+                                            "rgba(0, 170, 255, 0), stop:1.001 rgba(208, 158, 230, 255));\n "
                                             "}")
         self.circularProgress.setFrameShape(QtWidgets.QFrame.Shape.NoFrame)
         self.circularProgress.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
@@ -424,9 +462,10 @@ class Ui_MainWindow(object):
 
         self.circularProgress.setStyleSheet("QFrame {\n"
                                             "    border-radius: 150px;\n"
-                                            "    background-color: qconicalgradient(cx:0.5, cy:0.5, angle:90, stop:1.000 rgba(0, 170, 255, 0), stop:1.000 rgba(208, 158, 230, 255));\n"
+                                            "background-color: qconicalgradient(cx:0.5, cy:0.5, angle:90, stop:1.000 "
+                                            "rgba(0, 170, 255, 0), stop:1.000 rgba(208, 158, 230, 255));\n "
                                             "}")
-        
+
         self.step = 1.001 / self.temp
         self.stop_2 = 0.001
 
@@ -435,7 +474,7 @@ class Ui_MainWindow(object):
             self.stop_1 = round(self.stop_2 - 0.001, 3)
             self.circularProgress.setStyleSheet("QFrame {\n"
                                                 "    border-radius: 150px;\n"
-                                                f"    background-color: qconicalgradient(cx:0.5, cy:0.5, angle:90, stop:{self.stop_1} rgba(0, 170, 255, 0), stop:{self.stop_2} rgba(208, 158, 230, 255));\n"
+                                                f"    background-color: qconicalgradient(cx:0.5, cy:0.5, angle:90, stop:{self.stop_1} rgba(0, 170, 255, 0), stop:{self.stop_2} rgba(208, 158, 230, 255));\n "
                                                 "}")
 
             self.total_secs -= 1
@@ -461,7 +500,7 @@ class Ui_MainWindow(object):
             self.startIcon.setPixmap(QtGui.QPixmap("assets/img/Play.png"))
             self.startIcon.setGeometry(QtCore.QRect(60, 50, 40, 39))
 
-            playsound('assets/alerts/alert1.mp3')
+            playsound('assets/alerts/alert.wav')
 
             if platform.system() == 'Windows':
                 toast = ToastNotifier()
@@ -490,7 +529,7 @@ class Ui_MainWindow(object):
 
             self.circularProgress.setStyleSheet("QFrame {\n"
                                                 "    border-radius: 150px;\n"
-                                                f"    background-color: qconicalgradient(cx:0.5, cy:0.5, angle:90, stop:{self.stop_1} rgba(0, 170, 255, 0), stop:{self.stop_2} rgba(208, 158, 230, 255));\n"
+                                                f"    background-color: qconicalgradient(cx:0.5, cy:0.5, angle:90, stop:{self.stop_1} rgba(0, 170, 255, 0), stop:{self.stop_2} rgba(208, 158, 230, 255));\n "
                                                 "}")
 
             self.total_secs -= 1
@@ -523,6 +562,12 @@ class Ui_MainWindow(object):
                 toast.show_toast("Countdown Timer", "Time is Up!", duration=10)
 
     def stop(self):
+        self.circularProgress.setStyleSheet("QFrame {\n"
+                                            "    border-radius: 150px;\n"
+                                            "background-color: qconicalgradient(cx:0.5, cy:0.5, angle:90, stop:1.000 "
+                                            "rgba(0, 170, 255, 0), stop:1.001 rgba(208, 158, 230, 255));\n "
+                                            "}")
+
         self.stop_loop = True
         mins1, secs1 = divmod(self.temp, 60)
         hrs1, mins1 = divmod(mins1, 60)
@@ -540,6 +585,12 @@ class Ui_MainWindow(object):
         self.startIcon.setGeometry(QtCore.QRect(60, 50, 40, 39))
 
     def reset(self):
+        self.circularProgress.setStyleSheet("QFrame {\n"
+                                            "    border-radius: 150px;\n"
+                                            "background-color: qconicalgradient(cx:0.5, cy:0.5, angle:90, stop:1.000 "
+                                            "rgba(0, 170, 255, 0), stop:1.001 rgba(208, 158, 230, 255));\n "
+                                            "}")
+        
         self.total_secs = 0
         self.stop_loop = True
 
