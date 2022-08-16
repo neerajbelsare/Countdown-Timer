@@ -411,6 +411,10 @@ class Ui_MainWindow(object):
         t = threading.Thread(target=self.start)
         t.start()
 
+    def resume_thread(self):
+        t1 = threading.Thread(target=self.resume)
+        t1.start()
+
     def start(self):
         self.stopFrame.setEnabled(True)
         self.resetFrame.setEnabled(True)
@@ -473,7 +477,40 @@ class Ui_MainWindow(object):
         self.secsInput.setText(str(secs2).zfill(2))
 
     def resume(self):
-        pass
+        self.stopFrame.setEnabled(True)
+        self.resetFrame.setEnabled(True)
+        self.stop_loop = False
+        self.total_secs = self._hrs * 3600 + self._mins * 60 + self._secs
+
+        while self.total_secs > 0 and not self.stop_loop:
+            self.total_secs -= 1
+            mins, secs = divmod(self.total_secs, 60)
+            hrs, mins = divmod(mins, 60)
+
+            self.hrsInput.setDisabled(True)
+            self.minsInput.setDisabled(True)
+            self.secsInput.setDisabled(True)
+
+            self.hrsInput.setText(str(hrs).zfill(2))
+            self.minsInput.setText(str(mins).zfill(2))
+            self.secsInput.setText(str(secs).zfill(2))
+
+            time.sleep(1)
+
+        if not self.stop_loop:
+            self.hrsInput.setEnabled(True)
+            self.minsInput.setEnabled(True)
+            self.secsInput.setEnabled(True)
+
+            self.startLabel.setText("Start")
+            self.startIcon.setPixmap(QtGui.QPixmap("assets/img/Play.png"))
+            self.startIcon.setGeometry(QtCore.QRect(60, 50, 40, 39))
+
+            playsound('assets/alerts/alert1.mp3')
+
+            if platform.system() == 'Windows':
+                toast = ToastNotifier()
+                toast.show_toast("Countdown Timer", "Time is Up!", duration=10)
 
     def stop(self):
         self.stop_loop = True
@@ -552,7 +589,7 @@ class Ui_MainWindow(object):
             self._mins = int(self.minsInput.text() or "00")
             self._secs = int(self.secsInput.text() or "00")
 
-            self.start_thread()
+            self.resume_thread()
 
     def stop_clicked(self):
         self.stop()
