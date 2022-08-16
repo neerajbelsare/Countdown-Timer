@@ -428,13 +428,15 @@ class Ui_MainWindow(object):
                                             "}")
         
         self.step = 1.001 / self.temp
-        print(self.step)
-        self.stop_2 = 1.001
+        self.stop_2 = 0.001
 
         while self.total_secs > 0 and not self.stop_loop:
-            self.stop_2 = round(self.stop_2 - self.step, 3)
-            print(self.stop_2)
-            self.stop_1 = round(self.stop_2 - 1, 3)
+            self.stop_2 = round(self.stop_2 + self.step, 3)
+            self.stop_1 = round(self.stop_2 - 0.001, 3)
+            self.circularProgress.setStyleSheet("QFrame {\n"
+                                                "    border-radius: 150px;\n"
+                                                f"    background-color: qconicalgradient(cx:0.5, cy:0.5, angle:90, stop:{self.stop_1} rgba(0, 170, 255, 0), stop:{self.stop_2} rgba(208, 158, 230, 255));\n"
+                                                "}")
 
             self.total_secs -= 1
             mins, secs = divmod(self.total_secs, 60)
@@ -483,6 +485,14 @@ class Ui_MainWindow(object):
         self.total_secs = self._hrs * 3600 + self._mins * 60 + self._secs
 
         while self.total_secs > 0 and not self.stop_loop:
+            self.stop_2 = round(self.stop_2 + self.step, 3)
+            self.stop_1 = round(self.stop_2 - 0.001, 3)
+
+            self.circularProgress.setStyleSheet("QFrame {\n"
+                                                "    border-radius: 150px;\n"
+                                                f"    background-color: qconicalgradient(cx:0.5, cy:0.5, angle:90, stop:{self.stop_1} rgba(0, 170, 255, 0), stop:{self.stop_2} rgba(208, 158, 230, 255));\n"
+                                                "}")
+
             self.total_secs -= 1
             mins, secs = divmod(self.total_secs, 60)
             hrs, mins = divmod(mins, 60)
